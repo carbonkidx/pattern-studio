@@ -1,0 +1,48 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Pattern Studio — Skirt</title>
+<style>body{margin:0;background:#10141c;color:#eaf1fa;font:15px system-ui}header{padding:18px 24px;background:#1b2330;border-bottom:1px solid #39475c}h1{margin:0;font-size:23px}main{display:grid;grid-template-columns:300px 1fr;gap:18px;padding:20px}aside,.panel{background:#1b2330;border-radius:14px;padding:18px}label{display:block;margin:13px 0 5px;color:#b9c8d8}input{width:100%;box-sizing:border-box;padding:10px;border:1px solid #53677d;border-radius:7px;background:#10141c;color:white;font-size:16px}button{border:0;border-radius:8px;padding:11px 14px;background:#37d6d0;color:#10141c;font-weight:700;cursor:pointer;margin:5px 5px 5px 0}button.secondary{background:#39475c;color:white}svg{width:100%;height:65vh;min-height:380px;background:white;border-radius:8px}small{color:#b9c8d8}#status{min-height:25px;color:#80e7c9}@media(max-width:720px){main{grid-template-columns:1fr}svg{height:420px}}</style>
+<header><h1>Pattern Studio <span style="color:#37d6d0">/ SKIRT 01</span></h1><small>Local-first experimental drafting tool · centimetres</small></header>
+<main><aside><h2>Body measurements</h2>
+<label>Waist circumference (cm)</label><input id="waist" type="number" value="76" min="45" max="180" step=".5">
+<label>Hip circumference (cm)</label><input id="hip" type="number" value="100" min="55" max="210" step=".5">
+<label>Waist-to-hip depth (cm)</label><input id="depth" type="number" value="20" min="10" max="35" step=".5">
+<label>Skirt length (cm)</label><input id="length" type="number" value="60" min="25" max="120" step=".5">
+<label>Hip ease, total (cm)</label><input id="ease" type="number" value="4" min="0" max="20" step=".5">
+<label>Seam allowance (cm)</label><input id="seam" type="number" value="1" min="0" max="3" step=".5">
+<p><small>Prototype: straight skirt, front and back on fold, with simplified back waist darts. Waistband not included. Verify fit with a test garment.</small></p>
+<button onclick="draw()">Update Preview</button><button onclick="exportSVG()">Export SVG</button><button onclick="printPattern()">Print A4 / PDF</button><button class="secondary" onclick="saveProject()">Save project</button><button class="secondary" onclick="document.getElementById('load').click()">Load project</button><input hidden id="load" type="file" accept=".json" onchange="loadProject(event)">
+<p id="status"></p></aside><section class="panel"><h2>Pattern preview</h2><svg id="preview" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 90" style="width:100%;height:480px;background:white;border-radius:8px"><rect width="100" height="90" fill="white"/><g fill="none" stroke="#15283b" stroke-width=".22"><path d="M 10 12 L 33 12 Q 38 20 38 32 L 38 75 L 10 75 Z"/><path d="M 53 12 L 76 12 Q 81 20 81 32 L 81 75 L 53 75 Z"/><path d="M 10 32 H 38 M 53 32 H 81" stroke-dasharray="1 1"/><path d="M 21 12 L 23 22 L 25 12 M 64 12 L 66 22 L 68 12"/></g><g font-family="Arial" font-size="3" fill="#15283b"><text x="12" y="18">FRONT</text><text x="55" y="18">BACK</text><text x="10" y="83">Initial example — adjust measurements and press Update Preview</text></g></svg><p><small>Preview is fitted to screen; only the PDF printing output is intended at actual scale. Use 100% print scaling and check the 5 cm calibration square.</small></p></section></main>
+<script>
+const ids=['waist','hip','depth','length','ease','seam'];const $=id=>document.getElementById(id);
+ids.forEach(id=>$(id).addEventListener('input',()=>{draw();try{localStorage.setItem('skirtDraft',JSON.stringify(values()))}catch(e){}}));
+function values(){return Object.fromEntries(ids.map(id=>[id,Number($(id).value)]))}
+function valid(v){return Object.values(v).every(Number.isFinite)&&v.waist>0&&v.hip>v.waist&&v.depth>0&&v.length>v.depth&&v.seam>=0&&v.hip+v.ease>v.waist}
+function pattern(v){
+const h=(v.hip+v.ease)/4, w=v.waist/4+0.5, L=v.length,D=v.depth, s=v.seam;
+const backDart=1.5,frontDart=0.5;
+function piece(name,dart){let waist=w+dart,side=h-waist;let path=`M 0 0 L ${waist} 0 Q ${h} ${D*.5} ${h} ${D} L ${h} ${L} L 0 ${L} Z`;return {name,path,waist, dart,h,L,D,s}}
+return [piece('FRONT — CUT 1 ON FOLD',frontDart),piece('BACK — CUT 1 ON FOLD',backDart)]
+}
+function shapes(v){let pp=pattern(v),gap=12,margin=8,width=pp[0].h*2+gap+margin*2,height=v.length+margin*2;let out=`<svg xmlns="http://www.w3.org/2000/svg" width="${width}cm" height="${height}cm" viewBox="0 0 ${width} ${height}"><rect width="100%" height="100%" fill="white"/>`;
+pp.forEach((p,i)=>{let x=margin+i*(p.h+gap),y=margin;out+=`<g transform="translate(${x},${y})" fill="none" stroke="#111" stroke-width=".065"><path d="${p.path}"/><path d="M 0 ${p.D} L ${p.h} ${p.D}" stroke-dasharray=".5 .4"/><path d="M ${p.h*.45} 7 L ${p.h*.45} ${p.L-7}" stroke-dasharray="1 .5"/><path d="M ${p.h*.45} 7 l -1 2 m 1 -2 l 1 2 M ${p.h*.45} ${p.L-7} l -1 -2 m 1 2 l 1 -2"/><path d="M ${p.h} ${p.D-0.5} l -.7 .5 .7 .5"/></g><g font-family="Arial" fill="#111" font-size="1.1"><text x="${x+1}" y="${y+4}">${p.name}</text><text x="${x+1}" y="${y+p.L-3}">FOLD ←</text></g>`;
+if(p.dart){let cx=x+p.waist*.45,dx=p.dart/2;out+=`<path d="M ${cx-dx} ${y} L ${cx} ${y+Math.min(12,p.D*.7)} L ${cx+dx} ${y}" stroke="#111" stroke-width=".06" fill="none"/>`}}
+);out+=`<g stroke="#111" fill="none" stroke-width=".05"><rect x="1" y="${height-6}" width="5" height="5"/></g><text x="1" y="${height-6.5}" font-family="Arial" font-size=".7">5 cm test square</text></svg>`;return out}
+function draw(){
+ const v=values(),status=$('status');
+ if(!valid(v)){status.textContent='Please check measurements (hip > waist, length > hip depth).';return;}
+ const host=$('preview').parentElement;
+ const markup=shapes(v).replace('<svg ','<svg id="preview" style="display:block;width:100%;height:480px;background:white;border-radius:8px" ');
+ const old=$('preview');
+ old.insertAdjacentHTML('afterend',markup);
+ old.remove();
+ status.textContent='Preview updated: waist '+v.waist+' cm · hip '+v.hip+' cm · length '+v.length+' cm';
+}
+
+function download(name,content,type){let a=document.createElement('a'),url=URL.createObjectURL(new Blob([content],{type}));a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),3000)}
+function exportSVG(){let v=values();if(valid(v))download('skirt-pattern.svg',shapes(v),'image/svg+xml')}
+function saveProject(){download('skirt-project.json',JSON.stringify({format:'pattern-studio-skirt-v1',measurements:values()},null,2),'application/json')}
+function loadProject(e){let f=e.target.files[0];if(!f)return;f.text().then(t=>{try{let j=JSON.parse(t);if(j.format!=='pattern-studio-skirt-v1')throw Error();ids.forEach(id=>$(id).value=j.measurements[id]);draw()}catch(err){$('status').textContent='Invalid project file.'}})}
+function printPattern(){let v=values();if(!valid(v))return;let svg=shapes(v),w=window.open('','_blank');if(!w){$('status').textContent='Allow popups to print.';return}w.document.write(`<!doctype html><html><head><title>Skirt A4 pattern</title><style>@page{size:A4 portrait;margin:0}body{margin:0} .page{width:210mm;height:297mm;overflow:hidden;page-break-after:always;position:relative} .page svg{position:absolute;max-width:none} .mark{position:absolute;top:4mm;left:5mm;font:9pt Arial;background:white}</style></head><body id="pages"></body></html>`);w.document.close();
+let totalW=((v.hip+v.ease)/4)*2+28,totalH=v.length+16,tw=19,th=27.7,cols=Math.ceil(totalW/tw),rows=Math.ceil(totalH/th);let pg=w.document.getElementById('pages');for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){let div=w.document.createElement('div');div.className='page';div.innerHTML=svg+`<div class="mark">Row ${r+1}/${rows} · Col ${c+1}/${cols} · Print 100% · Overlap 10 mm</div>`;let el=div.querySelector('svg');el.style.width=totalW+'cm';el.style.height=totalH+'cm';el.style.left=(1-c*tw)+'cm';el.style.top=(1-r*th)+'cm';pg.appendChild(div)}setTimeout(()=>w.print(),400)}
+try{let old=JSON.parse(localStorage.getItem('skirtDraft'));if(old)ids.forEach(id=>{if(Number.isFinite(old[id]))$(id).value=old[id]})}catch(e){}
+draw();
+</script></html>
