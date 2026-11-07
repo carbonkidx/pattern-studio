@@ -1,49 +1,280 @@
-<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Pattern Studio — Skirt</title>
-<style>body{margin:0;background:#10141c;color:#eaf1fa;font:15px system-ui}header{padding:18px 24px;background:#1b2330;border-bottom:1px solid #39475c}h1{margin:0;font-size:23px}main{display:grid;grid-template-columns:300px 1fr;gap:18px;padding:20px}aside,.panel{background:#1b2330;border-radius:14px;padding:18px}label{display:block;margin:13px 0 5px;color:#b9c8d8}input{width:100%;box-sizing:border-box;padding:10px;border:1px solid #53677d;border-radius:7px;background:#10141c;color:white;font-size:16px}button{border:0;border-radius:8px;padding:11px 14px;background:#37d6d0;color:#10141c;font-weight:700;cursor:pointer;margin:5px 5px 5px 0}button.secondary{background:#39475c;color:white}svg{width:100%;height:65vh;min-height:380px;background:white;border-radius:8px}small{color:#b9c8d8}#status{min-height:25px;color:#80e7c9}@media(max-width:720px){main{grid-template-columns:1fr}svg{height:420px}}</style>
-<header><h1>Pattern Studio <span style="color:#37d6d0">/ SKIRT 01</span></h1><small>Local-first experimental drafting tool · centimetres</small></header>
-<main><aside><h2>Body measurements</h2>
-<label>Waist circumference (cm)</label><input id="waist" type="number" value="76" min="45" max="180" step=".5">
-<label>Hip circumference (cm)</label><input id="hip" type="number" value="100" min="55" max="210" step=".5">
-<label>Waist-to-hip depth (cm)</label><input id="depth" type="number" value="20" min="10" max="35" step=".5">
-<label>Skirt length (cm)</label><input id="length" type="number" value="60" min="25" max="120" step=".5">
-<label>Hip ease, total (cm)</label><input id="ease" type="number" value="4" min="0" max="20" step=".5">
-<label>Seam allowance (cm)</label><input id="seam" type="number" value="1" min="0" max="3" step=".5">
-<p><small>Prototype: straight skirt, front and back on fold, with simplified back waist darts. Waistband not included. Verify fit with a test garment.</small></p>
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Pattern Studio — Pattern Library</title>
+<style>body{margin:0;background:#10141c;color:#eaf1fa;font:15px system-ui}header{padding:18px 24px;background:#1b2330;border-bottom:1px solid #39475c}h1{margin:0;font-size:23px}main{display:grid;grid-template-columns:300px 1fr;gap:18px;padding:20px}aside,.panel{background:#1b2330;border-radius:14px;padding:18px}label{display:block;margin:13px 0 5px;color:#b9c8d8}input{width:100%;box-sizing:border-box;padding:10px;border:1px solid #53677d;border-radius:7px;background:#10141c;color:white;font-size:16px}button{border:0;border-radius:8px;padding:11px 14px;background:#37d6d0;color:#10141c;font-weight:700;cursor:pointer;margin:5px 5px 5px 0}button.secondary{background:#39475c;color:white}svg{width:100%;height:65vh;min-height:380px;background:white;border-radius:8px}small{color:#b9c8d8}#status{min-height:25px;color:#80e7c9}@media(max-width:720px){main{grid-template-columns:1fr}svg{height:420px}}
+/* The garment selector deliberately follows the original dark / teal design. */
+.pattern-select-row{display:flex;flex-wrap:wrap;align-items:center;gap:11px;margin-top:12px}
+.pattern-select-row label{margin:0;color:#b9c8d8;font-size:13px}
+select#garment{appearance:none;-webkit-appearance:none;min-width:185px;padding:11px 42px 11px 14px;border:1px solid #37d6d0;border-radius:8px;background:#37d6d0;color:#10141c;font-size:15px;font-weight:750;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24'%3E%3Cpath d='m6 9 6 6 6-6' fill='none' stroke='%2310141c' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
+select#garment:focus{outline:2px solid #8af2eb;outline-offset:2px}
+#patternNote{line-height:1.5}#patternNote small{display:block}
+.measurement-block label{margin-top:13px}#status{line-height:1.45}
+@media(max-width:720px){header{padding:17px 20px}.pattern-select-row{align-items:stretch}.pattern-select-row label{align-self:center}select#garment{flex:1;max-width:100%}}
+</style>
+<header><h1>Pattern Studio <span id="patternCode" style="color:#37d6d0">/ SKIRT 01</span></h1><small>Local-first experimental drafting tool · centimetres</small><div class="pattern-select-row"><label for="garment">Pattern type</label><select id="garment" aria-label="Choose garment pattern">
+<option value="skirt">Skirt</option><option value="tshirt">T-Shirt</option><option value="pants">Pants</option><option value="shorts">Shorts</option><option value="blouse">Blouse</option><option value="dress">Dress</option><option value="hoodie">Hoodie</option><option value="coat">Coat</option><option value="jacket">Jacket</option><option value="blazer">Blazer</option>
+</select></div></header>
+<main><aside><h2>Body measurements</h2><div id="measurementFields"></div><p id="patternNote"><small>Choose a pattern to see its measurement fields.</small></p>
 <button onclick="draw()">Update Preview</button><button onclick="exportSVG()">Export SVG</button><button onclick="printPattern()">Print A4 / PDF</button><button class="secondary" onclick="saveProject()">Save project</button><button class="secondary" onclick="document.getElementById('load').click()">Load project</button><input hidden id="load" type="file" accept=".json" onchange="loadProject(event)">
-<p id="status"></p></aside><section class="panel"><h2>Pattern preview</h2><svg id="preview" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 90" style="width:100%;height:480px;background:white;border-radius:8px"><rect width="100" height="90" fill="white"/><g fill="none" stroke="#15283b" stroke-width=".22"><path d="M 10 12 L 33 12 Q 38 20 38 32 L 38 75 L 10 75 Z"/><path d="M 53 12 L 76 12 Q 81 20 81 32 L 81 75 L 53 75 Z"/><path d="M 10 32 H 38 M 53 32 H 81" stroke-dasharray="1 1"/><path d="M 21 12 L 23 22 L 25 12 M 64 12 L 66 22 L 68 12"/></g><g font-family="Arial" font-size="3" fill="#15283b"><text x="12" y="18">FRONT</text><text x="55" y="18">BACK</text><text x="10" y="83">Initial example — adjust measurements and press Update Preview</text></g></svg><p><small>Preview is fitted to screen; only the PDF printing output is intended at actual scale. Use 100% print scaling and check the 5 cm calibration square.</small></p></section></main>
+<p id="status"></p></aside><section class="panel"><h2>Pattern preview</h2><svg id="preview" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 90" style="width:100%;height:480px;background:white;border-radius:8px"><rect width="100" height="90" fill="white"/><g fill="none" stroke="#15283b" stroke-width=".22"><path d="M 10 12 L 33 12 Q 38 20 38 32 L 38 75 L 10 75 Z"/><path d="M 53 12 L 76 12 Q 81 20 81 32 L 81 75 L 53 75 Z"/><path d="M 10 32 H 38 M 53 32 H 81" stroke-dasharray="1 1"/><path d="M 21 12 L 23 22 L 25 12 M 64 12 L 66 22 L 68 12"/></g><g font-family="Arial" font-size="3" fill="#15283b"><text x="12" y="18">FRONT</text><text x="55" y="18">BACK</text><text x="10" y="83">Initial example — adjust measurements and press Update Preview</text></g></svg><p><small>Preview is fitted to screen. A4 / PDF uses tiled actual-size pages: print at 100% and check the 5 cm square. Other garment types are experimental drafting studies, not production-ready sewing patterns.</small></p></section></main>
 <script>
-const ids=['waist','hip','depth','length','ease','seam'];const $=id=>document.getElementById(id);
-ids.forEach(id=>$(id).addEventListener('input',()=>{draw();try{localStorage.setItem('skirtDraft',JSON.stringify(values()))}catch(e){}}));
-function values(){return Object.fromEntries(ids.map(id=>[id,Number($(id).value)]))}
-function valid(v){return Object.values(v).every(Number.isFinite)&&v.waist>0&&v.hip>v.waist&&v.depth>0&&v.length>v.depth&&v.seam>=0&&v.hip+v.ease>v.waist}
+
+'use strict';
+const $ = id => document.getElementById(id);
+const fields = {
+  waist:['Waist circumference (cm)',76,45,180],
+  hip:['Hip circumference (cm)',100,55,210],
+  depth:['Waist-to-hip depth (cm)',20,10,35],
+  length:['Garment length (cm)',60,20,160],
+  ease:['Ease, total (cm)',4,0,35],
+  seam:['Seam allowance (cm)',1,0,3],
+  chest:['Chest circumference (cm)',96,55,190],
+  shoulder:['Shoulder width (cm)',43,24,70],
+  neck:['Neck circumference (cm)',38,25,65],
+  armhole:['Armhole depth (cm)',23,12,40],
+  sleeveLength:['Sleeve length (cm)',60,6,80],
+  bicep:['Upper arm circumference (cm)',32,18,75],
+  rise:['Crotch depth / rise (cm)',28,18,45],
+  inseam:['Inseam length (cm)',76,10,105],
+  thigh:['Thigh circumference (cm)',58,30,110],
+  knee:['Knee circumference (cm)',42,25,80],
+  legOpening:['Leg opening circumference (cm)',38,24,90],
+  bodiceLength:['Shoulder-to-waist length (cm)',40,25,60],
+  hoodHeight:['Hood height (cm)',36,24,50]
+};
+const categories = {
+ skirt:{name:'Skirt',code:'SKIRT 01',keys:['waist','hip','depth','length','ease','seam'],defaults:{waist:76,hip:100,depth:20,length:60,ease:4,seam:1},note:'Original straight skirt: front and back on fold, simplified waist darts. Waistband is not included.'},
+ tshirt:{name:'T-Shirt',code:'T-SHIRT 02',keys:['chest','shoulder','neck','armhole','length','sleeveLength','bicep','ease','seam'],defaults:{chest:96,shoulder:43,neck:38,armhole:23,length:67,sleeveLength:22,bicep:33,ease:8,seam:1},note:'Basic T-shirt body, back and short sleeve draft. Neckband not included.'},
+ pants:{name:'Pants',code:'PANTS 03',keys:['waist','hip','rise','inseam','thigh','knee','legOpening','ease','seam'],defaults:{waist:76,hip:100,rise:28,inseam:76,thigh:58,knee:42,legOpening:38,ease:4,seam:1},note:'Experimental front/back trouser leg panels plus reference waistband. Crotch and fit are illustrative.'},
+ shorts:{name:'Shorts',code:'SHORTS 04',keys:['waist','hip','rise','inseam','thigh','legOpening','ease','seam'],defaults:{waist:76,hip:100,rise:27,inseam:18,thigh:58,legOpening:58,ease:6,seam:1},note:'Basic short trouser leg panels and reference waistband.'},
+ blouse:{name:'Blouse',code:'BLOUSE 05',keys:['chest','waist','hip','shoulder','neck','armhole','length','sleeveLength','bicep','ease','seam'],defaults:{chest:96,waist:76,hip:100,shoulder:42,neck:38,armhole:23,length:65,sleeveLength:58,bicep:32,ease:10,seam:1},note:'Blouse with centre-front opening, simplified waist shaping, sleeves and collar study.'},
+ dress:{name:'Dress',code:'DRESS 06',keys:['chest','waist','hip','shoulder','neck','armhole','bodiceLength','length','sleeveLength','bicep','ease','seam'],defaults:{chest:96,waist:76,hip:100,shoulder:42,neck:38,armhole:23,bodiceLength:41,length:108,sleeveLength:22,bicep:32,ease:9,seam:1},note:'One-piece dress front/back, waist guideline and sleeve study. Requires fit testing.'},
+ hoodie:{name:'Hoodie',code:'HOODIE 07',keys:['chest','shoulder','neck','armhole','length','sleeveLength','bicep','hoodHeight','ease','seam'],defaults:{chest:100,shoulder:46,neck:40,armhole:26,length:70,sleeveLength:60,bicep:40,hoodHeight:36,ease:16,seam:1},note:'Relaxed hoodie front, back, sleeves, cuff and hood study.'},
+ coat:{name:'Coat',code:'COAT 08',keys:['chest','waist','hip','shoulder','neck','armhole','length','sleeveLength','bicep','ease','seam'],defaults:{chest:100,waist:82,hip:104,shoulder:45,neck:40,armhole:26,length:105,sleeveLength:62,bicep:42,ease:18,seam:1},note:'Straight coat front, back, sleeve and front facing study. Lining and construction details are omitted.'},
+ jacket:{name:'Jacket',code:'JACKET 09',keys:['chest','waist','hip','shoulder','neck','armhole','length','sleeveLength','bicep','ease','seam'],defaults:{chest:100,waist:82,hip:104,shoulder:45,neck:40,armhole:25,length:67,sleeveLength:61,bicep:40,ease:14,seam:1},note:'Casual jacket: separate front panels, back, sleeve and waistband study.'},
+ blazer:{name:'Blazer',code:'BLAZER 10',keys:['chest','waist','hip','shoulder','neck','armhole','length','sleeveLength','bicep','ease','seam'],defaults:{chest:100,waist:82,hip:104,shoulder:45,neck:39,armhole:25,length:74,sleeveLength:60,bicep:38,ease:10,seam:1},note:'Blazer draft with lapel guide, front/back, sleeve and facing. Tailoring structure is not included.'}
+};
+let currentType = 'skirt';
+const storageKey = type => `pattern-studio-v2-${type}`;
+function getStored(type){
+ try{
+   let v=localStorage.getItem(storageKey(type));
+   if(v)return JSON.parse(v);
+   if(type==='skirt')return JSON.parse(localStorage.getItem('skirtDraft')||'{}');
+ }catch(e){}
+ return {};
+}
+function setType(type, restore=true){
+ if(!categories[type])return;
+ currentType=type;
+ $('garment').value=type;
+ $('patternCode').textContent='/ '+categories[type].code;
+ const info=categories[type], saved=restore?getStored(type):{};
+ const holder=$('measurementFields');holder.textContent='';
+ for(const id of info.keys){
+   const [label,def,min,max]=fields[id];
+   const wrap=document.createElement('div');wrap.className='measurement-block';
+   const lbl=document.createElement('label');lbl.setAttribute('for',id);
+   lbl.textContent=(type==='skirt'&&id==='length'?'Skirt length (cm)':type==='skirt'&&id==='ease'?'Hip ease, total (cm)':label);
+   const input=document.createElement('input');
+   input.id=id;input.type='number';input.min=min;input.max=max;input.step='0.5';input.inputMode='decimal';
+   const value=Number(saved[id]);input.value=Number.isFinite(value)&&saved[id]!==undefined?value:(info.defaults[id]??def);
+   input.addEventListener('input',()=>{draw();try{localStorage.setItem(storageKey(currentType),JSON.stringify(values()));if(currentType==='skirt')localStorage.setItem('skirtDraft',JSON.stringify(values()))}catch(e){}});
+   wrap.append(lbl,input);holder.appendChild(wrap);
+ }
+ $('patternNote').textContent='';const note=document.createElement('small');
+ note.textContent='Prototype: '+info.note+' Seam allowance is shown as a reference input but is not yet offset into the outlines. Make a test garment before cutting final fabric.';
+ $('patternNote').appendChild(note);
+ try{localStorage.setItem('pattern-studio-selected',type)}catch(e){}
+ draw();
+}
+function values(){const out={};for(const id of categories[currentType].keys)out[id]=Number($(id).value);return out}
+function valid(v){
+ if(currentType==='skirt')return Object.values(v).every(Number.isFinite)&&v.waist>0&&v.hip>v.waist&&v.depth>0&&v.length>v.depth&&v.seam>=0&&v.hip+v.ease>v.waist;
+ const spec=categories[currentType];
+ if(!spec.keys.every(id=>Number.isFinite(v[id])&&v[id]>=fields[id][2]&&v[id]<=fields[id][3]))return false;
+ if('chest' in v && v.shoulder/2>v.chest/3)return false;
+ if('rise' in v && v.hip+v.ease<=v.waist)return false;
+ if('bodiceLength' in v && v.bodiceLength>=v.length-15)return false;
+ if('armhole' in v && v.length<=v.armhole+12)return false;
+ return true;
+}
+
 function pattern(v){
 const h=(v.hip+v.ease)/4, w=v.waist/4+0.5, L=v.length,D=v.depth, s=v.seam;
 const backDart=1.5,frontDart=0.5;
 function piece(name,dart){let waist=w+dart,side=h-waist;let path=`M 0 0 L ${waist} 0 Q ${h} ${D*.5} ${h} ${D} L ${h} ${L} L 0 ${L} Z`;return {name,path,waist, dart,h,L,D,s}}
 return [piece('FRONT — CUT 1 ON FOLD',frontDart),piece('BACK — CUT 1 ON FOLD',backDart)]
 }
-function shapes(v){let pp=pattern(v),gap=12,margin=8,width=pp[0].h*2+gap+margin*2,height=v.length+margin*2;let out=`<svg xmlns="http://www.w3.org/2000/svg" width="${width}cm" height="${height}cm" viewBox="0 0 ${width} ${height}"><rect width="100%" height="100%" fill="white"/>`;
+function skirtShapes(v){let pp=pattern(v),gap=12,margin=8,width=pp[0].h*2+gap+margin*2,height=v.length+margin*2;let out=`<svg xmlns="http://www.w3.org/2000/svg" width="${width}cm" height="${height}cm" viewBox="0 0 ${width} ${height}"><rect width="100%" height="100%" fill="white"/>`;
 pp.forEach((p,i)=>{let x=margin+i*(p.h+gap),y=margin;out+=`<g transform="translate(${x},${y})" fill="none" stroke="#111" stroke-width=".065"><path d="${p.path}"/><path d="M 0 ${p.D} L ${p.h} ${p.D}" stroke-dasharray=".5 .4"/><path d="M ${p.h*.45} 7 L ${p.h*.45} ${p.L-7}" stroke-dasharray="1 .5"/><path d="M ${p.h*.45} 7 l -1 2 m 1 -2 l 1 2 M ${p.h*.45} ${p.L-7} l -1 -2 m 1 2 l 1 -2"/><path d="M ${p.h} ${p.D-0.5} l -.7 .5 .7 .5"/></g><g font-family="Arial" fill="#111" font-size="1.1"><text x="${x+1}" y="${y+4}">${p.name}</text><text x="${x+1}" y="${y+p.L-3}">FOLD ←</text></g>`;
 if(p.dart){let cx=x+p.waist*.45,dx=p.dart/2;out+=`<path d="M ${cx-dx} ${y} L ${cx} ${y+Math.min(12,p.D*.7)} L ${cx+dx} ${y}" stroke="#111" stroke-width=".06" fill="none"/>`}}
 );out+=`<g stroke="#111" fill="none" stroke-width=".05"><rect x="1" y="${height-6}" width="5" height="5"/></g><text x="1" y="${height-6.5}" font-family="Arial" font-size=".7">5 cm test square</text></svg>`;return out}
+
+
+// The original skirt generator above remains unmodified. The following are new test drafts.
+function round(x){return Math.round(x*100)/100}
+function piece(name,w,h,path,opts={}){return {name,w:round(w),h:round(h),path,details:opts.details||[],fold:!!opts.fold}}
+function line(d,dash=false){return {d,dash}}
+function bodyPanel(v,type,isBack){
+ const easy=v.ease||0, chestQ=(v.chest+easy)/4;
+ const shoulderX=Math.max(14,v.shoulder/2), neckX=Math.min(shoulderX*.38,v.neck/5.8);
+ const neckY=isBack?2.2:Math.min(10,v.neck/5.2+1.2), drop=isBack?2.7:3.4;
+ const arm=v.armhole, L=v.length, upper=Math.max(chestQ,shoulderX+2.5);
+ let waistQ=('waist' in v)?(v.waist+easy)/4:upper*.95;
+ let hemQ=('hip' in v)?(v.hip+easy)/4:upper*1.01;
+ let waistY=type==='dress'?v.bodiceLength:Math.min(L*.64,arm+19);
+ if(type==='tshirt'||type==='hoodie'){waistQ=upper;hemQ=upper+(type==='hoodie'?1.2:0)}
+ if(type==='coat'){waistQ=Math.max(upper*.92,waistQ);hemQ=Math.max(upper,hemQ)}
+ if(type==='jacket'){waistQ=Math.max(upper*.90,waistQ);hemQ=Math.max(upper*.93,hemQ)}
+ const maxW=Math.max(upper,waistQ,hemQ),sleeveEdge=upper-1;
+ const d=`M 0 ${neckY} Q ${round(neckX*.32)} ${round(neckY*.23)} ${round(neckX)} 0 L ${round(shoulderX)} ${drop} Q ${round(shoulderX+1.5)} ${round(arm*.45)} ${round(sleeveEdge)} ${round(arm*.72)} Q ${round(upper)} ${round(arm*.9)} ${round(upper)} ${round(arm)} L ${round(waistQ)} ${round(waistY)} L ${round(hemQ)} ${round(L)} L 0 ${round(L)} Z`;
+ const details=[];
+ if(type==='dress')details.push(line(`M 0 ${round(waistY)} H ${round(waistQ)}`,true));
+ if((type==='blouse'||type==='blazer'||type==='coat'||type==='jacket')&&!isBack){
+   details.push(line(`M 1.8 ${round(neckY+4)} V ${round(L-3)}`,true));
+   if(type==='blazer')details.push(line(`M ${round(neckX)} 0 L 2 ${round(neckY+14)} L ${round(neckX+5)} ${round(neckY+21)}`,true));
+   if(type==='blouse'||type==='blazer')details.push(line(`M ${round(waistQ*.42)} ${round(waistY-12)} L ${round(waistQ*.48)} ${round(waistY)} L ${round(waistQ*.56)} ${round(waistY-12)}`));
+   if(type==='coat'||type==='jacket')details.push(line(`M ${round(waistQ*.4)} ${round(L*.63)} h ${round(waistQ*.4)} v 6 h ${round(-waistQ*.4)} Z`,true));
+ }
+ if(type==='hoodie')details.push(line(`M 0 ${round(L-9)} H ${round(hemQ)}`,true));
+ if(type==='jacket')details.push(line(`M 0 ${round(L-8)} H ${round(hemQ)}`,true));
+ return piece((isBack?'BACK':'FRONT')+(isBack?' — CUT 1 ON FOLD':(['tshirt','hoodie','dress'].includes(type)?' — CUT 1 ON FOLD':' — CUT 2')),maxW,L,d,{fold:isBack||(['tshirt','hoodie','dress'].includes(type)&&!isBack),details});
+}
+function sleevePanel(v,type){
+ const bicep=v.bicep, armW=Math.max(15,(bicep+(v.ease||0)*.20)/2+2);
+ const cap=Math.max(8,Math.min(16,v.armhole*.55));
+ const total=v.sleeveLength+cap;
+ const cuffW=(type==='tshirt'||type==='dress')?armW*.90:armW*.65;
+ const mid=armW/2, start=mid-cuffW/2,end=mid+cuffW/2;
+ const d=`M 0 ${round(cap)} Q ${round(armW*.14)} ${round(cap*.24)} ${round(mid)} 0 Q ${round(armW*.86)} ${round(cap*.24)} ${round(armW)} ${round(cap)} L ${round(end)} ${round(total)} L ${round(start)} ${round(total)} Z`;
+ const details=[line(`M 0 ${round(cap)} H ${round(armW)}`,true),line(`M ${round(mid)} ${round(cap)} V ${round(total)}`,true)];
+ if(type==='hoodie')details.push(line(`M ${round(start)} ${round(total-6)} H ${round(end)}`,true));
+ return piece('SLEEVE — CUT 2',armW,total,d,{details});
+}
+function waistbandPanel(v,label){
+ const w=Math.max(18,(v.waist+v.ease)/2+2);
+ return piece(label,w,5,`M 0 0 H ${round(w)} V 5 H 0 Z`,{details:[line(`M ${round(w/2)} 0 V 5`,true)]})
+}
+function trouserPanel(v,isBack){
+ // Simplified geometric trouser block. Not a tested crotch or fit construction.
+ const hipQ=(v.hip+v.ease)/4 + (isBack?2.3:0.7);
+ const waistQ=v.waist/4+(isBack?2.6:1.8), rise=v.rise, total=rise+v.inseam;
+ const ext=isBack?Math.max(7,v.hip/13):Math.max(4,v.hip/22);
+ const thighW=Math.max((v.thigh/2)+(isBack?1.5:.5),hipQ*.9);
+ const legW=(v.legOpening/2)+(isBack?1:0);
+ const x0=ext, x1=ext+hipQ, center=x0+hipQ*.48;
+ const outsideBottom=center+legW*.54,insideBottom=center-legW*.46;
+ const crotchX=Math.max(0,x0-ext),crotchY=rise+2;
+ const kneeY=rise+v.inseam*.52, kneeW=(v.knee||v.legOpening)/2+1;
+ const width=Math.max(x1+1,outsideBottom+1);
+ const d=`M ${round(x0)} 0 L ${round(x0+waistQ)} 0 Q ${round(x1)} ${round(rise*.40)} ${round(x1)} ${round(rise)} L ${round(center+kneeW*.55)} ${round(kneeY)} L ${round(outsideBottom)} ${round(total)} L ${round(insideBottom)} ${round(total)} L ${round(center-kneeW*.45)} ${round(kneeY)} Q ${round(crotchX+2)} ${round(rise+5)} ${round(crotchX)} ${round(crotchY)} Q ${round(x0+1)} ${round(rise*.65)} ${round(x0)} 0 Z`;
+ const details=[line(`M ${round(x0)} ${round(rise)} H ${round(x1)}`,true),line(`M ${round(center-kneeW*.45)} ${round(kneeY)} H ${round(center+kneeW*.55)}`,true),line(`M ${round(center)} ${round(rise+7)} V ${round(total-5)}`,true)];
+ return piece((isBack?'BACK':'FRONT')+' LEG — CUT 2',width,total+1,d,{details});
+}
+function hoodPanel(v){
+ const h=v.hoodHeight,w=Math.max(19,h*.78),y=Math.max(5,h*.17);
+ const d=`M 0 ${round(h)} L 0 ${round(h*.36)} Q 0  ${round(w*.6)} 0 Q ${round(w)} 0 ${round(w)} ${round(h*.5)} L ${round(w*.9)} ${round(h)} Z`;
+ return piece('HOOD SIDE — CUT 2',w,h,d,{details:[line(`M 0 ${round(h*.62)} Q ${round(w*.35)} ${round(h*.50)} ${round(w*.58)} ${round(h*.6)}`,true)]});
+}
+function collarPanel(v,type){
+ const len=Math.max(24,v.neck*.85),height=type==='blouse'?8:type==='blazer'?10:7;
+ return piece((type==='blazer'?'LAPEL / COLLAR STUDY':'COLLAR STUDY')+' — CUT 2',len,height,`M 0 ${round(height)} L ${round(len*.14)} 0 L ${round(len*.75)} 0 L ${round(len)} ${round(height*.78)} Z`);
+}
+function facingPanel(v,type){
+ const h=v.length*.63,w=type==='blazer'?10:7;
+ return piece('FRONT FACING — CUT 2',w,h,`M 0 0 L ${round(w)} 5 L ${round(w*.6)} ${round(h)} L 0 ${round(h)} Z`);
+}
+function cuffPanel(v){
+ const w=Math.max(12,v.bicep*.4);
+ return piece('CUFF — CUT 2',w,6,`M 0 0 H ${round(w)} V 6 H 0 Z`);
+}
+function generatePieces(type,v){
+ if(type==='pants'||type==='shorts')return [trouserPanel(v,false),trouserPanel(v,true),waistbandPanel(v,'WAISTBAND STUDY — CUT 2')];
+ const out=[bodyPanel(v,type,false),bodyPanel(v,type,true),sleevePanel(v,type)];
+ if(type==='hoodie')out.push(hoodPanel(v),cuffPanel(v));
+ if(type==='blouse')out.push(collarPanel(v,'blouse'));
+ if(type==='jacket')out.push(waistbandPanel({waist:v.hip,ease:v.ease},'HEM BAND STUDY'));
+ if(type==='coat'||type==='blazer')out.push(facingPanel(v,type));
+ if(type==='blazer')out.push(collarPanel(v,'blazer'));
+ return out;
+}
+function draftShapes(v){
+ const pp=generatePieces(currentType,v),limit=122,gap=10,margin=8;
+ let x=margin,y=margin,rowH=0,maxX=0;
+ let inner='';
+ for(const p of pp){
+   if(x>margin&&x+p.w+margin>limit){y+=rowH+gap;x=margin;rowH=0}
+   const px=round(x),py=round(y);
+   inner+=`<g transform="translate(${px} ${py})" fill="none" stroke="#111" stroke-width=".07"><path d="${p.path}"/>`;
+   for(const d of p.details)inner+=`<path d="${d.d}" stroke="#555" stroke-width=".045" ${d.dash?'stroke-dasharray=".8 .6"':''}/>`;
+   inner+='</g>';
+   inner+=`<g transform="translate(${px} ${py})" fill="#111" font-family="Arial, sans-serif" font-size="1.05"><text x=".9" y="4.7">${p.name}</text>`;
+   if(p.fold)inner+=`<text x=".9" y="${round(p.h-2.5)}">FOLD ←</text>`;
+   inner+='</g>';
+   x+=p.w+gap;rowH=Math.max(rowH,p.h);maxX=Math.max(maxX,x-gap+margin);
+ }
+ const width=round(maxX+2),height=round(y+rowH+margin+8);
+ inner+=`<g stroke="#111" fill="none" stroke-width=".05"><rect x="2" y="${round(height-6.5)}" width="5" height="5"/></g><text x="2" y="${round(height-7)}" font-family="Arial" font-size=".8" fill="#111">5 cm test square</text>`;
+ inner+=`<text x="12" y="${round(height-3)}" font-family="Arial" font-size=".95" fill="#444">${categories[currentType].name.toUpperCase()} / EXPERIMENTAL DRAFT — VERIFY FIT</text>`;
+ return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}cm" height="${height}cm" viewBox="0 0 ${width} ${height}"><rect width="100%" height="100%" fill="white"/>${inner}</svg>`;
+}
+function shapes(v){return currentType==='skirt'?skirtShapes(v):draftShapes(v)}
 function draw(){
  const v=values(),status=$('status');
- if(!valid(v)){status.textContent='Please check measurements (hip > waist, length > hip depth).';return;}
- const host=$('preview').parentElement;
+ if(!valid(v)){status.textContent='Please check the measurements and their allowed ranges.';return}
  const markup=shapes(v).replace('<svg ','<svg id="preview" style="display:block;width:100%;height:480px;background:white;border-radius:8px" ');
- const old=$('preview');
- old.insertAdjacentHTML('afterend',markup);
- old.remove();
- status.textContent='Preview updated: waist '+v.waist+' cm · hip '+v.hip+' cm · length '+v.length+' cm';
+ const old=$('preview');old.insertAdjacentHTML('afterend',markup);old.remove();
+ const mainMeasure=('chest' in v?'chest '+v.chest+' cm':('hip' in v?'hip '+v.hip+' cm':''));
+ status.textContent='Preview updated: '+categories[currentType].name+' · '+mainMeasure+' · '+(v.length?'length '+v.length+' cm':v.inseam?'inseam '+v.inseam+' cm':'');
 }
+function download(name,content,type){
+ const a=document.createElement('a'),url=URL.createObjectURL(new Blob([content],{type}));
+ a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),5000);
+}
+function exportSVG(){const v=values();if(valid(v))download(`${currentType}-pattern.svg`,shapes(v),'image/svg+xml');else $('status').textContent='Check measurements before export.'}
+function saveProject(){
+ const v=values();if(!valid(v)){$('status').textContent='Check measurements before saving.';return}
+ const data=currentType==='skirt'?{format:'pattern-studio-skirt-v1',measurements:v}:{format:'pattern-studio-v2',garment:currentType,measurements:v};
+ download(`${currentType}-project.json`,JSON.stringify(data,null,2),'application/json');
+}
+function loadProject(e){
+ const f=e.target.files&&e.target.files[0];if(!f)return;
+ f.text().then(t=>{
+   try{
+     const j=JSON.parse(t);
+     let type=j.format==='pattern-studio-skirt-v1'?'skirt':(j.format==='pattern-studio-v2'?j.garment:null);
+     if(!categories[type]||!j.measurements||typeof j.measurements!=='object')throw Error('Invalid project');
+     setType(type,false);
+     for(const id of categories[type].keys){
+       const n=Number(j.measurements[id]);if(Number.isFinite(n)&&j.measurements[id]!==null&&j.measurements[id]!=='')$(id).value=n;
+     }
+     draw();if(!valid(values()))throw Error('Invalid measurements');
+     try{localStorage.setItem(storageKey(type),JSON.stringify(values()))}catch(e){}
+   }catch(err){$('status').textContent='Invalid project file or measurements.'}
+ }).catch(()=>{$('status').textContent='Could not load project.'});
+ e.target.value='';
+}
+function printPattern(){
+ const v=values();if(!valid(v)){$('status').textContent='Check measurements before printing.';return}
+ const svg=shapes(v),matches=svg.match(/<svg[^>]*width="([\d.]+)cm" height="([\d.]+)cm"/);
+ if(!matches){$('status').textContent='Print dimensions unavailable.';return}
+ const totalW=Number(matches[1]),totalH=Number(matches[2]);
+ const tw=19,th=27.7,cols=Math.ceil(totalW/tw),rows=Math.ceil(totalH/th);
+ const w=window.open('','_blank');
+ if(!w){$('status').textContent='Allow pop-ups to print.';return}
+ w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${categories[currentType].name} A4 pattern</title><style>@page{size:A4 portrait;margin:0}body{margin:0}.page{width:210mm;height:297mm;overflow:hidden;break-after:page;page-break-after:always;position:relative}.page svg{position:absolute;max-width:none}.mark{position:absolute;top:4mm;left:5mm;font:9pt Arial;background:white;z-index:1}</style></head><body id="pages"></body></html>`);
+ w.document.close();const pg=w.document.getElementById('pages');
+ for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){
+   const div=w.document.createElement('div');div.className='page';
+   div.innerHTML=svg+`<div class="mark">${categories[currentType].name} · Row ${r+1}/${rows} · Col ${c+1}/${cols} · 100% scale · 10 mm overlap</div>`;
+   const el=div.querySelector('svg');el.style.width=totalW+'cm';el.style.height=totalH+'cm';el.style.left=(1-c*tw)+'cm';el.style.top=(1-r*th)+'cm';
+   pg.appendChild(div);
+ }
+ $('status').textContent=`Print prepared: ${rows*cols} A4 pages. Confirm 100% print scale and 5 cm square.`;
+ setTimeout(()=>w.print(),550);
+}
+$('garment').addEventListener('change',e=>setType(e.target.value));
+let initial='skirt';
+try{const candidate=localStorage.getItem('pattern-studio-selected');if(categories[candidate])initial=candidate}catch(e){}
+setType(initial);
 
-function download(name,content,type){let a=document.createElement('a'),url=URL.createObjectURL(new Blob([content],{type}));a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),3000)}
-function exportSVG(){let v=values();if(valid(v))download('skirt-pattern.svg',shapes(v),'image/svg+xml')}
-function saveProject(){download('skirt-project.json',JSON.stringify({format:'pattern-studio-skirt-v1',measurements:values()},null,2),'application/json')}
-function loadProject(e){let f=e.target.files[0];if(!f)return;f.text().then(t=>{try{let j=JSON.parse(t);if(j.format!=='pattern-studio-skirt-v1')throw Error();ids.forEach(id=>$(id).value=j.measurements[id]);draw()}catch(err){$('status').textContent='Invalid project file.'}})}
-function printPattern(){let v=values();if(!valid(v))return;let svg=shapes(v),w=window.open('','_blank');if(!w){$('status').textContent='Allow popups to print.';return}w.document.write(`<!doctype html><html><head><title>Skirt A4 pattern</title><style>@page{size:A4 portrait;margin:0}body{margin:0} .page{width:210mm;height:297mm;overflow:hidden;page-break-after:always;position:relative} .page svg{position:absolute;max-width:none} .mark{position:absolute;top:4mm;left:5mm;font:9pt Arial;background:white}</style></head><body id="pages"></body></html>`);w.document.close();
-let totalW=((v.hip+v.ease)/4)*2+28,totalH=v.length+16,tw=19,th=27.7,cols=Math.ceil(totalW/tw),rows=Math.ceil(totalH/th);let pg=w.document.getElementById('pages');for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){let div=w.document.createElement('div');div.className='page';div.innerHTML=svg+`<div class="mark">Row ${r+1}/${rows} · Col ${c+1}/${cols} · Print 100% · Overlap 10 mm</div>`;let el=div.querySelector('svg');el.style.width=totalW+'cm';el.style.height=totalH+'cm';el.style.left=(1-c*tw)+'cm';el.style.top=(1-r*th)+'cm';pg.appendChild(div)}setTimeout(()=>w.print(),400)}
-try{let old=JSON.parse(localStorage.getItem('skirtDraft'));if(old)ids.forEach(id=>{if(Number.isFinite(old[id]))$(id).value=old[id]})}catch(e){}
-draw();
 </script></html>
-
